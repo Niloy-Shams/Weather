@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather</title>
+    <link rel="stylesheet" href="./css/output.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+        integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body class="bg-gray-900">
+    <div class="h-screen flex justify-center items-center">
+        <div class="bg-white w-96 flex flex-col p-4 m-4 rounded-lg justify-center items-center">
+            <div class="w-full flex justify-between items-center gap-3">
+                <input type="text" id="search-box" placeholder="Enter your City"
+                    class="bg-blue-100 w-80 p-2 rounded-lg">
+                <i id="search-btn"
+                    class="fa-solid fa-magnifying-glass cursor-pointer bg-blue-100 active:bg-blue-300 duration-100 h-10 text-center py-3 rounded-full aspect-square"></i>
+            </div>
+            <div id="weather-image" class="h-52 w-52 my-2 flex justify-center items-center">
+                <img id="image" src="./assets/cloud.png" alt="">
+            </div>
+            <div id="info1" class="flex flex-col justify-center items-center my-4 weather-info">
+                <div class="font-semibold relative"><span id="temparature" class="text-4xl font-bold">0</span><sup
+                        class="absolute top-3">°C</sup></div>
+                <div id="weather" class="text-2xl font-semibold">Light Rain</div>
+            </div>
+            <div id="info2" class="flex flex-row justify-between gap-14 items-center my-4">
+                <div class="flex flex-row justify-center items-center">
+                    <i class="fa-solid fa-droplet text-4xl pr-2"></i>
+                    <div class="flex flex-col">
+                        <span id="humidity" class="text-2xl font-bold">51%</span>
+                        <span>Humidity</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-row justify-center items-center">
+                    <i class="fa-solid fa-wind text-4xl pr-2"></i>
+                    <div class="flex flex-col">
+                        <span class="font-medium"><span id="wind-speed"
+                                class="text-2xl font-bold">4.63</span>km/H</span>
+                        <span>Wind Speed</span>
+                    </div>
+                </div>
+            </div>
+            <div id="error" class="hidden flex-col text-center justify-center items-center text-4xl">
+                <span class="font-bold">404!</span>
+                <span>City not found</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const key = "3d979c83a3f95778d1e908fc96d75805";
+        const searchBtn = document.querySelector('#search-btn');
+
+        async function getWeather(city) {
+            let URL = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${key}`;
+            let response = await fetch(URL);
+            let data = await response.json();
+            console.log(data);
+            if (data.cod == 404) {
+                document.querySelector("#error").classList.remove('hidden');
+                document.querySelector("#error").classList.add('flex');
+                document.querySelector("#info1").classList.remove('flex');
+                document.querySelector("#info1").classList.add('hidden');
+                document.querySelector("#info2").classList.remove('flex');
+                document.querySelector("#info2").classList.add('hidden');
+                
+                document.querySelector("#image").src = "./assets/404.png";
+            } else {
+                document.querySelector("#error").classList.add('hidden');
+                document.querySelector("#error").classList.remove('flex');
+                document.querySelector("#info1").classList.add('flex');
+                document.querySelector("#info1").classList.remove('hidden');
+                document.querySelector("#info2").classList.add('flex');
+                document.querySelector("#info2").classList.remove('hidden');
+
+                document.querySelector("#temparature").textContent = `${Math.round(data.main.temp - 273.14)}`;
+                document.querySelector("#humidity").textContent = `${data.main.humidity}%`;
+                document.querySelector("#weather").textContent = `${data.weather[0].main}`;
+                document.querySelector("#wind-speed").textContent = `${data.wind.speed}`;
+
+                switch(data.weather[0].main){
+                    case 'Clouds':
+                        document.querySelector("#image").src = "./assets/cloud.png";  
+                        break; 
+                    case 'Clear':
+                        document.querySelector("#image").src = "./assets/clear.png";  
+                        break;
+                    case 'Rain':
+                        document.querySelector("#image").src = "./assets/rain.png";  
+                        break;
+                    case 'Haze':
+                        document.querySelector("#image").src = "./assets/mist.png";  
+                        break;
+                    case 'Snow':
+                        document.querySelector("#image").src = "./assets/snow.png";  
+                        break;
+                }
+            }
+        }
+
+        searchBtn.addEventListener('click', () => {
+            const city = document.querySelector("#search-box").value;
+            getWeather(city);
+        })
+
+    </script>
+</body>
+
+</html>
